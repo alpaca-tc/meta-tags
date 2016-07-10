@@ -1,24 +1,20 @@
 require 'spec_helper'
+require 'action_controller/test_case'
 
 class MetaTagsController < ActionController::Base
-  attr_reader :rendered
-
-  def render_without_meta_tags
-    @rendered = true
-  end
-
   def index
     @page_title       = 'title'
     @page_keywords    = 'key1, key2, key3'
     @page_description = 'description'
-    render
+
+    render plain: ''
   end
 
   public :set_meta_tags, :meta_tags
 end
 
 describe MetaTags::ControllerHelper do
-  subject { MetaTagsController.new }
+  subject(:controller) { MetaTagsController.new }
 
   context 'module' do
     it 'should be mixed into ActionController::Base' do
@@ -26,14 +22,24 @@ describe MetaTags::ControllerHelper do
     end
 
     it 'should respond to "set_meta_tags" helper' do
-      expect(subject).to respond_to(:set_meta_tags)
+      is_expected.to respond_to(:set_meta_tags)
     end
   end
 
   describe '.render' do
-    it 'should set meta tags from instance variables' do
+    let(:session) { ActionController::TestSession.new }
+    let(:env) { {} }
+    let(:request) { ActionController::TestRequest.new(env, session) }
+    let(:response) { ActionDispatch::Response.create }
+
+    before do
+      controller.request = request
+      controller.response = response
       subject.index
-      expect(subject.rendered).to be_truthy
+    end
+
+    it 'should set meta tags from instance variables' do
+      expect(response.body).to eq('')
       expect(subject.meta_tags.meta_tags).to eq('title' => 'title', 'keywords' => 'key1, key2, key3', 'description' => 'description')
     end
   end
