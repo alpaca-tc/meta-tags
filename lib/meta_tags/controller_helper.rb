@@ -14,12 +14,12 @@ module MetaTags
 
     # Processes the <tt>@page_title</tt>, <tt>@page_keywords</tt>, and
     # <tt>@page_description</tt> instance variables and calls +render+.
-    def render(*args, &block)
+    def render(*)
       self.meta_tags[:title]       = @page_title       if @page_title
       self.meta_tags[:keywords]    = @page_keywords    if @page_keywords
       self.meta_tags[:description] = @page_description if @page_description
 
-      render_without_meta_tags(*args, &block)
+      super
     end
 
     # Set meta tags for the page.
